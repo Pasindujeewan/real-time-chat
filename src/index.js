@@ -19,6 +19,29 @@ io.on("connection", (socket) => {
 
   socket.emit("message", "hello from server");
 
+  socket.on("joinConversation", (data) => {
+    console.log("joinConversation data", data);
+    const { userId, otherUserId } = JSON.parse(data);
+    const roomId = [userId, otherUserId].sort().join("_");
+
+    socket.join(roomId);
+
+    console.log(`User ${userId} joined room ${roomId}`);
+  });
+
+  socket.on("sendMessage", (data) => {
+    console.log("sendMessage data", data);
+    const { senderId, receiverId, text } = JSON.parse(data);
+    const roomId = [senderId, receiverId].sort().join("_");
+
+    console.log(`User ${senderId} sent message to room ${roomId}: ${text}`);
+
+    io.to(roomId).emit("receiveMessage", {
+      senderId,
+      text,
+    });
+  });
+
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });
