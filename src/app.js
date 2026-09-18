@@ -1,3 +1,4 @@
+import "./config/env.js";
 import express from "express";
 import errorMiddleware from "./middleware/error.middlware";
 
