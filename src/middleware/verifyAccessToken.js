@@ -11,7 +11,7 @@ export const verifyAccessTokenMiddleware = async (req, res, next) => {
     }
 
     const token = authHeader.split(" ")[1];
-    const payload = verifyAccessToken(token);
+    const payload = verifiyAccesstoken(token);
 
     const user = await User.findById(payload.sub);
     if (!user) {
