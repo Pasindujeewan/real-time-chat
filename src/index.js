@@ -1,6 +1,7 @@
 import { createServer } from "http";
 import { Server } from "socket.io";
 import app from "./app.js";
+import { socketAuth } from "./sockets/socket.middleware.js";
 
 import { connectDB } from "./config/db.js";
 
@@ -10,6 +11,8 @@ const io = new Server(httpServer, {
     origin: "*",
   },
 });
+
+io.use(socketAuth);
 
 await connectDB();
 

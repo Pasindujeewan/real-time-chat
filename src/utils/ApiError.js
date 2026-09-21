@@ -1,5 +1,5 @@
-class ApiError extends Error {
-  constructor(message, statusCode, error_code) {
+export class ApiError extends Error {
+  constructor(message, statusCode = 500, error_code = "INTERNAL_SERVER_ERROR") {
     super(message);
     this.statusCode = statusCode;
     this.error_code = error_code;
