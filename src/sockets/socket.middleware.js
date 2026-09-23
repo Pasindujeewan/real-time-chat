@@ -1,5 +1,5 @@
-import { ApiError } from "../utils/ApiError";
-import { verifiyAccesstoken } from "../utils/token";
+import { ApiError } from "../utils/ApiError.js";
+import { verifiyAccesstoken } from "../utils/token.js";
 
 export const socketAuth = (socket, next) => {
   const token = socket.handshake.auth.token;

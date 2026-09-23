@@ -42,17 +42,13 @@ const userSchema = new mongoose.Schema(
         return ret;
       },
     },
-  }
+  },
 );
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("passwordHash")) return next();
-  try {
-    this.passwordHash = await argon2.hash(this.passwordHash);
-    next();
-  } catch (error) {
-    next(error);
-  }
+userSchema.pre("save", async function () {
+  if (!this.isModified("passwordHash")) return;
+
+  this.passwordHash = await argon2.hash(this.passwordHash);
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
