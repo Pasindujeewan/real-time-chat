@@ -1,9 +1,10 @@
 import { ApiError } from "../utils/ApiError";
+import { verifiyAccesstoken } from "../utils/token";
 
 export const socketAuth = (socket, next) => {
   const token = socket.handshake.auth.token;
   try {
-    const decoded = verifyAccessToken(token);
+    const decoded = verifiyAccesstoken(token);
 
     socket.user = decoded;
 
