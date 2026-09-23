@@ -7,6 +7,7 @@ import argon2 from "argon2";
 // Register User
 export const register = async (req, res) => {
   const { username, email, password } = req.body;
+  console.log("register is start");
 
   if (!username || !email || !password) {
     throw new ApiError(
