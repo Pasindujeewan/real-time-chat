@@ -5,6 +5,7 @@ import User from "../models/User.js";
 export const verifyAccessTokenMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
+    console.log(authHeader + "");
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       throw new ApiError("Access token required", 401, "UNAUTHORIZED");
