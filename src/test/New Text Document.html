@@ -1,0 +1,193 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Socket.IO Chat Test</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+      }
+
+      input {
+        width: 100%;
+        padding: 10px;
+        margin: 6px 0 12px;
+        box-sizing: border-box;
+      }
+
+      button {
+        padding: 10px 16px;
+        margin: 5px 5px 5px 0;
+        cursor: pointer;
+      }
+
+      #status {
+        padding: 10px;
+        margin: 15px 0;
+        background: #eee;
+      }
+
+      #messages {
+        height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-top: 20px;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Socket.IO Chat Test</h1>
+
+    <label>Your User ID</label>
+    <input id="userId" placeholder="Your user ID" />
+
+    <label>Access Token</label>
+    <input id="token" placeholder="Paste your JWT access token" />
+
+    <button id="connectBtn">Connect</button>
+    <button id="disconnectBtn">Disconnect</button>
+
+    <div id="status">Disconnected</div>
+
+    <hr />
+
+    <h2>Send Message</h2>
+
+    <label>Receiver User ID</label>
+    <input id="receiverId" placeholder="Receiver user ID" />
+
+    <label>Message</label>
+    <input id="message" placeholder="Type your message" />
+
+    <button id="sendBtn">Send Message</button>
+
+    <h2>Messages</h2>
+
+    <div id="messages"></div>
+
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+
+    <script>
+      let socket = null;
+
+      const userIdInput = document.getElementById("userId");
+      const tokenInput = document.getElementById("token");
+      const receiverIdInput = document.getElementById("receiverId");
+      const messageInput = document.getElementById("message");
+
+      const connectBtn = document.getElementById("connectBtn");
+      const disconnectBtn = document.getElementById("disconnectBtn");
+      const sendBtn = document.getElementById("sendBtn");
+
+      const status = document.getElementById("status");
+      const messages = document.getElementById("messages");
+
+      function addMessage(text) {
+        messages.textContent += text + "\n";
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      connectBtn.addEventListener("click", () => {
+        const token = tokenInput.value.trim();
+
+        if (!token) {
+          addMessage("Access token is required");
+          return;
+        }
+
+        if (socket) {
+          socket.disconnect();
+        }
+
+        socket = io("http://localhost:3000", {
+          auth: {
+            token,
+          },
+        });
+        socket.on("newMessage", (message) => {
+          console.log("New message received:", message);
+
+          addMessage(`From: ${message.senderId}\nMessage: ${message.content}`);
+        });
+
+        socket.on("connect", () => {
+          status.textContent = `Connected: ${socket.id}`;
+          addMessage(`CONNECTED`);
+          addMessage(`Socket ID: ${socket.id}`);
+        });
+
+        socket.on("connect_error", (error) => {
+          status.textContent = "Connection failed";
+          addMessage(`CONNECTION ERROR: ${error.message}`);
+        });
+
+        socket.on("disconnect", (reason) => {
+          status.textContent = `Disconnected: ${reason}`;
+          addMessage(`DISCONNECTED: ${reason}`);
+        });
+
+        socket.on("message", (message) => {
+          addMessage(`RECEIVED:\n${JSON.stringify(message, null, 2)}`);
+        });
+      });
+
+      disconnectBtn.addEventListener("click", () => {
+        if (!socket) {
+          return;
+        }
+
+        socket.disconnect();
+        socket = null;
+        status.textContent = "Disconnected";
+      });
+
+      sendBtn.addEventListener("click", () => {
+        if (!socket || !socket.connected) {
+          addMessage("Socket is not connected");
+          return;
+        }
+
+        const receiverId = receiverIdInput.value.trim();
+        const content = messageInput.value.trim();
+
+        if (!receiverId) {
+          addMessage("Receiver ID is required");
+          return;
+        }
+
+        if (!content) {
+          addMessage("Message is required");
+          return;
+        }
+
+        socket.emit("sendMessage", {
+          receiverId,
+          content,
+        });
+
+        addMessage(
+          `SENT:\n${JSON.stringify(
+            {
+              receiverId,
+              content,
+            },
+            null,
+            2,
+          )}`,
+        );
+
+        messageInput.value = "";
+      });
+    </script>
+  </body>
+</html>
+```

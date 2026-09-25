@@ -26,7 +26,7 @@ export const generateRefreshToken = (userId) => {
 
 // verify access token
 export const verifiyAccesstoken = (token) => {
-  return jwt.verify(token, env.ACCESS_TOKEN_EXPIRE, {
+  return jwt.verify(token, env.JWT_ACCESS_SECRET, {
     issuer: env.JWT_ISSUER,
     audience: env.JWT_AUDIENCE,
   });
