@@ -16,7 +16,7 @@ export const createConversation = async (req, res, next) => {
 
     let conversation = await Conversation.findOne({
       participants: { $all: [userId, participantId] },
-    });
+    }).lean();
 
     if (!conversation) {
       conversation = await Conversation.create({

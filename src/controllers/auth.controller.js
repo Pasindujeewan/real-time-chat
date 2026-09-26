@@ -18,7 +18,9 @@ export const register = async (req, res, next) => {
       );
     }
 
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    const existingUser = await User.findOne({
+      $or: [{ email }, { username }],
+    }).lean();
     if (existingUser) {
       throw new ApiError(
         "User with this email or username already exists",
