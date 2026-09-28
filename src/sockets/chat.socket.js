@@ -3,6 +3,7 @@ import { Message } from "../models/Message.js";
 
 export const registerChatEvents = (io, socket) => {
   const userId = socket.user.sub;
+  socket.join(`user:${userId}`);
 
   socket.on("joinConversation", async ({ conversationId }) => {
     try {
@@ -53,6 +54,28 @@ export const registerChatEvents = (io, socket) => {
         content,
       });
 
+      const room = io.sockets.adapter.rooms.get(
+        `conversation:${conversationId}`,
+      );
+      const receiverId = conversation.participants.find(
+        (id) => id.toString() !== userId,
+      );
+
+      const isUserInConversation = [...(room ?? [])].some((socketId) => {
+        const socket = io.sockets.sockets.get(socketId);
+
+        return socket?.userId === receiverId;
+      });
+
+      if (!isUserInConversation) {
+        io.to(`user:${receiverId}`).emit("conversationNotification", {
+          conversationId,
+          senderId: userId,
+          content: message.content,
+        });
+        return;
+      }
+
       io.to(`conversation:${conversationId}`).emit("newMessage", {
         id: message._id,
         conversationId: message.conversationId,
@@ -61,6 +84,7 @@ export const registerChatEvents = (io, socket) => {
         createdAt: message.createdAt,
       });
     } catch (error) {
+      console.log(error);
       socket.emit("error", {
         message: "Failed to send message",
       });
