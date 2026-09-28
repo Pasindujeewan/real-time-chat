@@ -33,6 +33,7 @@ export const registerChatEvents = (io, socket) => {
 
   socket.on("sendMessage", async ({ conversationId, content }) => {
     try {
+      console.log(conversationId, content);
       const conversation = await Conversation.findOne({
         _id: conversationId,
         participants: userId,
