@@ -5,6 +5,7 @@ export const registerChatEvents = (io, socket) => {
   const userId = socket.user.sub;
   socket.join(`user:${userId}`);
 
+  // Handle joining a conversation
   socket.on("joinConversation", async ({ conversationId }) => {
     try {
       const conversation = await Conversation.findOne({
@@ -31,7 +32,7 @@ export const registerChatEvents = (io, socket) => {
       });
     }
   });
-
+  // Handle sending a message
   socket.on("sendMessage", async ({ conversationId, content }) => {
     try {
       console.log(conversationId, content);
@@ -54,6 +55,7 @@ export const registerChatEvents = (io, socket) => {
         content,
       });
 
+      // Check if the receiver is in the conversation room
       const room = io.sockets.adapter.rooms.get(
         `conversation:${conversationId}`,
       );
@@ -67,6 +69,7 @@ export const registerChatEvents = (io, socket) => {
         return socket?.userId === receiverId;
       });
 
+      // If the receiver is not in the conversation room, send a notification to the receiver
       if (!isUserInConversation) {
         io.to(`user:${receiverId}`).emit("conversationNotification", {
           conversationId,
@@ -75,7 +78,7 @@ export const registerChatEvents = (io, socket) => {
         });
         return;
       }
-
+      // Emit the new message to all participants in the conversation room , it usually includes the sender and the receiver
       io.to(`conversation:${conversationId}`).emit("newMessage", {
         id: message._id,
         conversationId: message.conversationId,
