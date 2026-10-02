@@ -18,6 +18,8 @@ const envSchema = z.object({
 
   JWT_ISSUER: z.string().default("chat-api"),
   JWT_AUDIENCE: z.string().default("chat-client"),
+
+  REDIS_URL: z.string().default("redis://localhost:6379"),
 });
 
 export const env = envSchema.parse(process.env);
