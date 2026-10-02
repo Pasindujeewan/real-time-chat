@@ -2,6 +2,7 @@ import { Conversation } from "../models/Convercation.js";
 import { Message } from "../models/Message.js";
 
 export const registerChatEvents = (io, socket) => {
+  // Join the user to private room based on their user ID
   const userId = socket.user.sub;
   socket.join(`user:${userId}`);
 
